@@ -1,10 +1,13 @@
-﻿using Infrastructure.Services.Input;
+﻿using Game.Enemy;
+using Infrastructure.Data;
+using Infrastructure.Services.Input;
+using Infrastructure.Services.PersistentProgress;
 using UnityEngine;
 using Zenject;
 
-namespace Game.Scripts.Game.Character
+namespace Game.Character
 {
-	public class CharacterMovement : MonoBehaviour
+	public class CharacterMovement : MonoBehaviour, ISavedProgressReader
 	{
 		[SerializeField, HideInInspector] private CharacterController characterController;
 		[SerializeField] private float movementSpeed;
@@ -37,6 +40,9 @@ namespace Game.Scripts.Game.Character
 
 			characterController.Move(movementSpeed * movementVector * Time.deltaTime);
 		}
+
+		public void LoadProgress(PlayerProgress progress) =>
+			movementSpeed = progress.Stats.MoveSpeed;
 
 		#region Editor
 

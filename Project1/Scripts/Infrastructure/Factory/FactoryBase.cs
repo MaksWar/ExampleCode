@@ -9,8 +9,8 @@ namespace Infrastructure.Factory
 	{
 		protected readonly IAssetProvider _assetProvider;
 
-		public List<ISavedProgressReader> ProgressReaders { get; }
-		public List<ISavedProgress> SavedProgresses { get; }
+		public List<ISavedProgressReader> ProgressReaders { get; } = new List<ISavedProgressReader>();
+		public List<ISavedProgress> SavedProgresses { get; } = new List<ISavedProgress>();
 
 		protected FactoryBase(IAssetProvider assetProvider) =>
 			_assetProvider = assetProvider;

@@ -1,14 +1,17 @@
 ﻿using System;
 using Additions.Extensions;
+using Infrastructure.Data;
+using Infrastructure.Services.PersistentProgress;
 using UnityEngine;
 
-namespace Game.Scripts.Game.Character
+namespace Game.Character
 {
-	public class CharacterHealth : MonoBehaviour
+	public class CharacterHealth : MonoBehaviour, IHealth, ISavedProgress
 	{
 		private float _currentHealth;
 
-		public float Current => _currentHealth;
+		public float Current => _currentHealth >= 0 ? _currentHealth : 0;
+
 		public float Max { get; }
 
 		public event Action<float> OnHealthChanged;
@@ -33,5 +36,11 @@ namespace Game.Scripts.Game.Character
 
 			OnHealthChanged?.Invoke(_currentHealth);
 		}
+
+		public void LoadProgress(PlayerProgress progress) =>
+			_currentHealth = progress.Stats.CurrentHp;
+
+		public void UpdateProgress(PlayerProgress progress) =>
+			progress.Stats.CurrentHp = Current;
 	}
 }

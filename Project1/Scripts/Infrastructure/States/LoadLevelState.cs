@@ -1,6 +1,7 @@
 using Game.Scripts.Additions.Camera;
 using Infrastructure;
 using Infrastructure.Factory;
+using Infrastructure.Services.PersistentProgress;
 using UnityEngine;
 using Zenject;
 
@@ -8,22 +9,27 @@ namespace Infrastructure.States
 {
 	public class LoadLevelState : IPayLoadedState<string>
 	{
+		private readonly IPersistentProgressService _progressService;
+		private readonly IFactoryContainer _factoryContainer;
+		private readonly IPlayerFactory _playerFactory;
+		private readonly IUiFactory _uiFactory;
 		private readonly GameStateMachine _stateMachine;
 		private readonly LoadingCurtain _loadingCurtain;
 		private readonly SceneLoader _sceneLoader;
-		private readonly IUiFactory _uiFactory;
-		private readonly IPlayerFactory _playerFactory;
 
 		private const string InitialPoint = "InitialPoint";
 
 		public LoadLevelState(GameStateMachine stateMachine, LoadingCurtain loadingCurtain, SceneLoader sceneLoader,
-			IUiFactory uiFactory, IPlayerFactory playerFactory)
+			IUiFactory uiFactory, IPlayerFactory playerFactory, IFactoryContainer factoryContainer
+			, IPersistentProgressService progressService)
 		{
 			_loadingCurtain = loadingCurtain;
 			_uiFactory = uiFactory;
 			_sceneLoader = sceneLoader;
 			_stateMachine = stateMachine;
 			_playerFactory = playerFactory;
+			_factoryContainer = factoryContainer;
+			_progressService = progressService;
 		}
 
 		public void Enter(string sceneName)
@@ -38,6 +44,7 @@ namespace Infrastructure.States
 		private void OnLoaded()
 		{
 			InitGameWorld();
+			InformProgressReaders();
 		}
 
 		private void InitGameWorld()
@@ -53,6 +60,12 @@ namespace Infrastructure.States
 			Camera.main
 				.GetComponent<CameraFollower>()
 				.Follow(character);
+		}
+
+		private void InformProgressReaders()
+		{
+			foreach (ISavedProgressReader progressReader in _factoryContainer.ProgressReaders)
+				progressReader.LoadProgress(_progressService.Progress);
 		}
 
 		public class Factory : PlaceholderFactory<IGameStateMachine, LoadLevelState>

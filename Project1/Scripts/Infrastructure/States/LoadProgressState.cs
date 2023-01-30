@@ -1,5 +1,7 @@
+using Game.Data.CharacterStats;
 using Infrastructure;
 using Infrastructure.Data;
+using Infrastructure.Services.DataServices.CharacterStats;
 using Infrastructure.Services.PersistentProgress;
 using Infrastructure.Services.SaveLoad;
 using ModestTree;
@@ -10,15 +12,17 @@ namespace Infrastructure.States
 {
 	public class LoadProgressState : IState
 	{
+		private readonly ICharacterStatsService _characterStatsService;
 		private readonly IPersistentProgressService _progressService;
 		private readonly ISaveLoadService _savedLoadService;
 		private readonly GameStateMachine _stateMachine;
 
 		public LoadProgressState(GameStateMachine stateMachine, IPersistentProgressService progressService,
-			ISaveLoadService savedLoadService)
+			ISaveLoadService savedLoadService, ICharacterStatsService characterStatsService)
 		{
 			_progressService = progressService;
 			_savedLoadService = savedLoadService;
+			_characterStatsService = characterStatsService;
 			_stateMachine = stateMachine;
 		}
 
@@ -36,8 +40,14 @@ namespace Infrastructure.States
 			_progressService.Progress = _savedLoadService.LoadProgress() ?? NewProgress();
 
 		// TODO замінити дебаг перехід
-		private PlayerProgress NewProgress() =>
-			new PlayerProgress(GetNextScene());
+		private PlayerProgress NewProgress()
+		{
+			var progress = new PlayerProgress(GetNextScene());
+
+			InitCharacterStats(progress);
+
+			return progress;
+		}
 
 		private string GetNextScene()
 		{
@@ -55,6 +65,16 @@ namespace Infrastructure.States
 			}
 
 			return scene;
+		}
+
+		private void InitCharacterStats(PlayerProgress progress)
+		{
+			CharacterStatsData stats = _characterStatsService.GetCharacterStats();
+
+			progress.Stats.MaxHP = stats.MaxHp;
+			progress.Stats.MoveSpeed = stats.MoveSpeed;
+
+			progress.Stats.ResetHp();
 		}
 
 		public class Factory : PlaceholderFactory<IGameStateMachine, LoadProgressState>

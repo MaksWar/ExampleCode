@@ -6,10 +6,12 @@ namespace Infrastructure.Data
 	public class PlayerProgress
 	{
 		public WorldData WorldData;
+		public CharacterStats Stats;
 
 		public PlayerProgress(string initialLevel)
 		{
 			WorldData = new WorldData(initialLevel);
+			Stats = new CharacterStats();
 		}
 	}
 }

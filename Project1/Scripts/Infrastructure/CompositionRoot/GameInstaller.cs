@@ -1,9 +1,11 @@
 ﻿using Infrastructure;
 using Infrastructure.AssetManagement;
 using Infrastructure.Factory;
+using Infrastructure.Services.DataServices.CharacterStats;
 using Infrastructure.Services.Input;
 using Infrastructure.Services.PersistentProgress;
 using Infrastructure.Services.SaveLoad;
+using Infrastructure.Services.ScriptableLoader;
 using Infrastructure.States;
 using UnityEngine;
 using Zenject;
@@ -18,7 +20,11 @@ namespace Infrastructure.CompositionRoot
 
 			BindAssetProvider();
 
+			BindScriptableProvider();
+
 			BindFactories();
+
+			BindData();
 
 			BindCoroutineRunner();
 
@@ -49,6 +55,13 @@ namespace Infrastructure.CompositionRoot
 				.AsSingle();
 		}
 
+		private void BindScriptableProvider()
+		{
+			Container
+				.BindInterfacesAndSelfTo<ScriptableProvider>()
+				.AsSingle();
+		}
+
 		private void BindFactories()
 		{
 			Container
@@ -61,6 +74,13 @@ namespace Infrastructure.CompositionRoot
 
 			Container
 				.BindInterfacesAndSelfTo<FactoriesContainer>()
+				.AsSingle();
+		}
+
+		private void BindData()
+		{
+			Container
+				.BindInterfacesAndSelfTo<CharacterStatsService>()
 				.AsSingle();
 		}
 
